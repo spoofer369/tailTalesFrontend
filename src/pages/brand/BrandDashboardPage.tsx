@@ -6,11 +6,14 @@ import { fetchBrand } from "@/store/slices/brandDashboardSlice";
 import BrandSidebar from "@/components/brand/BrandSidebar";
 import BrandOverview from "@/components/brand/BrandOverview";
 import ComingSoonPlaceholder from "@/components/brand/ComingSoonPlaceholder";
+import ProductList from "@/components/brand/products/ProductList";
+import ProductForm from "@/components/brand/products/ProductForm";
 
 const breadcrumbMap: Record<string, string> = {
   "/brand/dashboard": "Dashboard",
   "/brand/dashboard/analytics": "Analytics",
   "/brand/dashboard/products": "Products",
+  "/brand/dashboard/products/new": "Add Product",
   "/brand/dashboard/posts": "Posts",
   "/brand/dashboard/leads": "Leads",
   "/brand/dashboard/sponsored": "Sponsored",
@@ -26,7 +29,10 @@ export default function BrandDashboardPage() {
   const { brand } = useAppSelector((s) => s.brandDashboard);
 
   const currentPath = location.pathname;
-  const currentLabel = breadcrumbMap[currentPath] || "Dashboard";
+  // For product edit routes like /products/123, show "Edit Product"
+  const currentLabel =
+    breadcrumbMap[currentPath] ||
+    (currentPath.match(/\/products\/\d+$/) ? "Edit Product" : "Dashboard");
 
   // Fetch brand data on mount
   useEffect(() => {
@@ -57,10 +63,9 @@ export default function BrandDashboardPage() {
               path="analytics"
               element={<ComingSoonPlaceholder title="Analytics" />}
             />
-            <Route
-              path="products"
-              element={<ComingSoonPlaceholder title="Products management" />}
-            />
+            <Route path="products" element={<ProductList />} />
+            <Route path="products/new" element={<ProductForm />} />
+            <Route path="products/:id" element={<ProductForm />} />
             <Route
               path="posts"
               element={<ComingSoonPlaceholder title="Posts management" />}

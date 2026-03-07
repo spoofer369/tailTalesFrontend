@@ -104,12 +104,27 @@ function buildPayload(state: BrandRegistrationState): CreateBrandPayload {
 export const createBrand = createAsyncThunk<
   IBrand,
   void,
-  { rejectValue: string; state: { brandRegistration: BrandRegistrationState } }
+  {
+    rejectValue: string;
+    state: {
+      brandRegistration: BrandRegistrationState;
+      auth: { user: { id: number } | null };
+    };
+  }
 >("brand/create", async (_, { rejectWithValue, getState }) => {
   try {
-    const { brandRegistration } = getState();
+    const { brandRegistration, auth } = getState();
     const payload = buildPayload(brandRegistration);
-    const response = await createBrandApi(payload);
+
+    // Include user_id so backend can link brand to user
+    const payloadWithUser = {
+      ...payload,
+      user_id: auth.user?.id,
+    };
+
+    const response = await createBrandApi(
+      payloadWithUser as CreateBrandPayload & { user_id?: number },
+    );
     if (!response.success) {
       return rejectWithValue(response.message);
     }

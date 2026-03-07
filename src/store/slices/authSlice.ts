@@ -162,11 +162,17 @@ export const checkAuth = createAsyncThunk<IUser, void, { rejectValue: string }>(
         return rejectWithValue("No token found");
       }
       const response = await getMeApi();
-      if (!response.success) {
+      // Backend /auth/me returns { success, user } not { success, data }
+      const meResponse = response as unknown as {
+        success: boolean;
+        user: IUser;
+        message?: string;
+      };
+      if (!meResponse.success) {
         localStorage.removeItem("token");
-        return rejectWithValue(response.message);
+        return rejectWithValue(meResponse.message || "Session expired");
       }
-      return response.data;
+      return meResponse.user;
     } catch (error: unknown) {
       localStorage.removeItem("token");
       const err = error as { response?: { data?: { message?: string } } };

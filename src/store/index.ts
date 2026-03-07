@@ -5,6 +5,7 @@ import authReducer from "./slices/authSlice";
 import adminReducer from "./slices/adminSlice";
 import brandRegistrationReducer from "./slices/brandSlice";
 import brandDashboardReducer from "./slices/brandDashboardSlice";
+import productReducer from "./slices/productSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     admin: adminReducer,
     brandRegistration: brandRegistrationReducer,
     brandDashboard: brandDashboardReducer,
+    products: productReducer,
   },
 });
 

@@ -62,14 +62,18 @@ export interface IProduct {
   id: number;
   name: string;
   description: string;
+  currency: string;
   price: number;
-  sale_price: number | null;
-  images: string[];
-  video_url: string | null;
+  catalog_content: string[];
   brand_id: number;
-  category_id: number;
+  delivers_to: string[];
+  added_by: number;
+  categories: number[];
   active: boolean;
-  brand?: IBrand;
+  brand?: { id: number; name: string; logo: string };
+  categoryDetails?: ICategory[];
+  engagement?: { likes: number };
+  isLikedByUser?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -197,4 +201,30 @@ export interface CreateBrandPayload {
   brand_details?: {
     headquarters?: string;
   };
+}
+
+// Product Form Payloads
+
+export interface CreateProductPayload {
+  name: string;
+  description?: string;
+  price: number;
+  currency?: string;
+  catalog_content?: string[];
+  brand_id: number;
+  added_by: number;
+  categories: number[];
+  delivers_to?: string[];
+  active?: boolean;
+}
+
+export interface UpdateProductPayload {
+  name?: string;
+  description?: string;
+  price?: number;
+  currency?: string;
+  catalog_content?: string[];
+  categories?: number[];
+  delivers_to?: string[];
+  active?: boolean;
 }
