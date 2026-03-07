@@ -20,6 +20,7 @@ export interface IUser {
   email: string;
   phone_number: string;
   role: string;
+  brand_id: number | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -148,4 +149,52 @@ export interface OtpInputProps {
   value: string[];
   onChange: (otp: string[]) => void;
   disabled?: boolean;
+}
+
+// Brand Registration Form Interfaces
+
+export interface IBrandInfoForm {
+  name: string;
+  description: string;
+  logo: string; // URL string (placeholder for now)
+}
+
+export interface IContactForm {
+  contactPerson: string;
+  phone: string;
+  email: string;
+  website: string;
+  instagram: string;
+  whatsapp: string;
+}
+
+export interface IAddressForm {
+  address: string;
+  city: string;
+  pinCode: string;
+}
+
+export interface IBrandRegistrationForm {
+  brandInfo: IBrandInfoForm;
+  contact: IContactForm;
+  address: IAddressForm;
+}
+
+export interface CreateBrandPayload {
+  name: string;
+  description?: string;
+  logo?: string;
+  website_url?: string;
+  social_media?: {
+    instagram?: string;
+    whatsapp?: string;
+  };
+  contact_info?: {
+    email?: string;
+    phone?: string;
+    address?: string;
+  };
+  brand_details?: {
+    headquarters?: string;
+  };
 }

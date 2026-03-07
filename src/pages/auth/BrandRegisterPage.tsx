@@ -1,28 +1,22 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Phone,
-  ArrowLeft,
-  ArrowRight,
-  Loader2,
-  Building,
-  User,
-  Check,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { OtpInput } from "@/components/ui/OtpInput";
+import { ArrowLeft, Building } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
-  requestOtp,
-  verifyOtp,
-  signupUser,
-  clearError,
-  resetAuthState,
-} from "@/store/slices/authSlice";
-import type { AuthStep } from "@/types";
+  updateBrandInfo,
+  updateContact,
+  updateAddress,
+  createBrand,
+  clearBrandError,
+  resetBrandRegistration,
+  nextStep,
+  prevStep,
+} from "@/store/slices/brandSlice";
+import StepIndicator from "@/components/brand/StepIndicator";
+import BrandInfoStep from "@/components/brand/BrandInfoStep";
+import ContactStep from "@/components/brand/ContactStep";
+import AddressStep from "@/components/brand/AddressStep";
 
 const fadeIn = {
   initial: { opacity: 0, x: 20 },
@@ -33,319 +27,138 @@ const fadeIn = {
 export default function BrandRegisterPage() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { isLoading, error, verificationId, isAuthenticated } = useAppSelector(
-    (state) => state.auth,
-  );
+  const {
+    currentStep,
+    brandInfo,
+    contact,
+    address,
+    isSubmitting,
+    error: brandError,
+    createdBrand,
+  } = useAppSelector((state) => state.brandRegistration);
 
-  const [step, setStep] = useState<AuthStep>("phone");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [otp, setOtp] = useState<string[]>(["", "", "", ""]);
-  const [brandName, setBrandName] = useState("");
-  const [countdown, setCountdown] = useState(0);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/brand/onboarding", { replace: true });
-    }
-  }, [isAuthenticated, navigate]);
-
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      dispatch(resetAuthState());
+      dispatch(resetBrandRegistration());
     };
   }, [dispatch]);
 
+  // Redirect after brand created
   useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
+    if (createdBrand) {
+      setTimeout(() => navigate("/brand/login", { replace: true }), 2000);
     }
-  }, [countdown]);
+  }, [createdBrand, navigate]);
 
-  const formatPhoneNumber = (phone: string) => {
-    const cleaned = phone.replace(/\D/g, "");
-    if (cleaned.startsWith("91") && cleaned.length <= 12) return `+${cleaned}`;
-    if (cleaned.length === 10) return `+91${cleaned}`;
-    return phone.startsWith("+") ? phone : `+${phone}`;
+  // ── Navigation Handlers ──
+
+  const handleNext = () => {
+    dispatch(nextStep());
   };
 
-  const handleSendOtp = async () => {
-    dispatch(clearError());
-    const formatted = formatPhoneNumber(phoneNumber);
-    const result = await dispatch(requestOtp(formatted));
-    if (requestOtp.fulfilled.match(result)) {
-      setStep("otp");
-      setCountdown(30);
-    }
+  const handlePrev = () => {
+    dispatch(prevStep());
   };
 
-  const handleVerifyOtp = async () => {
-    dispatch(clearError());
-    const otpString = otp.join("");
-    if (otpString.length !== 4 || !verificationId) return;
-
-    const formatted = formatPhoneNumber(phoneNumber);
-    const result = await dispatch(
-      verifyOtp({
-        phoneNumber: formatted,
-        otp: otpString,
-        verificationId,
-      }),
-    );
-
-    if (verifyOtp.fulfilled.match(result)) {
-      if (result.payload.is_registered) {
-        // Already registered — redirect to login
-        navigate("/brand/login", { replace: true });
-      } else {
-        setStep("signup");
-      }
-    }
+  const handleCompleteRegistration = () => {
+    dispatch(clearBrandError());
+    dispatch(createBrand());
   };
 
-  const handleSignup = async () => {
-    dispatch(clearError());
-    const formatted = formatPhoneNumber(phoneNumber);
-    const result = await dispatch(
-      signupUser({
-        phoneNumber: formatted,
-        role: "brand_admin",
-        username: brandName || undefined,
-      }),
-    );
-    if (signupUser.fulfilled.match(result)) {
-      setStep("success");
-      setTimeout(() => navigate("/brand/onboarding", { replace: true }), 1500);
-    }
-  };
-
-  const handleResendOtp = async () => {
-    if (countdown > 0) return;
-    const formatted = formatPhoneNumber(phoneNumber);
-    const result = await dispatch(requestOtp(formatted));
-    if (requestOtp.fulfilled.match(result)) {
-      setOtp(["", "", "", ""]);
-      setCountdown(30);
-    }
-  };
+  // ── Computed ──
+  const completedSteps = Array.from(
+    { length: currentStep - 1 },
+    (_, i) => i + 1,
+  );
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-emerald-50 via-white to-teal-50/30 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <Link
-          to="/"
-          className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-8 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-1" />
-          Back to Home
-        </Link>
+    <div className="min-h-screen bg-gradient-to-br from-violet-50/60 via-white to-purple-50/30 flex items-center justify-center p-4">
+      <div className="w-full max-w-lg">
+        {/* Top navigation */}
+        {currentStep === 1 && !createdBrand && (
+          <Link
+            to="/brand/login"
+            className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-6 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Back to Login
+          </Link>
+        )}
+        {currentStep > 1 && !createdBrand && (
+          <button
+            onClick={handlePrev}
+            className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-6 transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Previous Step
+          </button>
+        )}
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl border border-gray-200/60 shadow-xl shadow-emerald-100/50 p-8"
+          className="bg-white rounded-2xl border border-gray-200/60 shadow-xl shadow-violet-100/50 p-8"
         >
-          {/* Logo */}
-          <div className="flex items-center gap-2.5 mb-8">
-            <div className="w-10 h-10 bg-linear-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-md shadow-emerald-200">
-              <Building className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <span className="text-xl font-semibold text-gray-900">
-                Register Brand
-              </span>
-              <p className="text-xs text-gray-400">Get started on Vividly</p>
-            </div>
-          </div>
+          {/* Header */}
+          {!createdBrand && (
+            <>
+              <div className="text-center mb-6">
+                <div className="w-14 h-14 bg-gradient-to-br from-violet-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-violet-200">
+                  <Building className="w-7 h-7 text-white" />
+                </div>
+                <h1 className="text-2xl font-bold text-violet-700 mb-1">
+                  Register Your Brand
+                </h1>
+                <p className="text-sm text-gray-500">
+                  Complete the steps below to join Vividly
+                </p>
+              </div>
+
+              {/* Step Indicator */}
+              <StepIndicator
+                currentStep={currentStep}
+                completedSteps={completedSteps}
+              />
+            </>
+          )}
 
           <AnimatePresence mode="wait">
-            {step === "phone" && (
-              <motion.div key="phone" {...fadeIn}>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                  List Your Brand
-                </h1>
-                <p className="text-gray-500 mb-6">
-                  Start reaching local customers today
-                </p>
-
-                {/* Benefits */}
-                <div className="space-y-2 mb-6">
-                  {[
-                    "Free brand profile & product catalog",
-                    "City-based visibility to shoppers",
-                    "Direct WhatsApp inquiries",
-                  ].map((benefit) => (
-                    <div key={benefit} className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center">
-                        <Check className="w-2.5 h-2.5 text-white" />
-                      </div>
-                      <span className="text-sm text-gray-600">{benefit}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <Label
-                      htmlFor="phone"
-                      className="text-sm font-medium text-gray-700 mb-1.5"
-                    >
-                      Phone Number
-                    </Label>
-                    <div className="relative mt-1.5">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="Enter 10-digit number"
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleSendOtp()}
-                        className="pl-10 h-12"
-                      />
-                    </div>
-                  </div>
-
-                  {error && (
-                    <p className="text-sm text-red-500 bg-red-50 p-3 rounded-lg">
-                      {error}
-                    </p>
-                  )}
-
-                  <Button
-                    onClick={handleSendOtp}
-                    disabled={
-                      phoneNumber.replace(/\D/g, "").length < 10 || isLoading
-                    }
-                    className="w-full bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white h-12 cursor-pointer"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : null}
-                    Get Started
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
-              </motion.div>
+            {/* ─── BRAND INFO (Step 1) ─── */}
+            {currentStep === 1 && !createdBrand && (
+              <BrandInfoStep
+                key="brandInfo"
+                data={brandInfo}
+                onChange={(data) => dispatch(updateBrandInfo(data))}
+                onNext={handleNext}
+              />
             )}
 
-            {step === "otp" && (
-              <motion.div key="otp" {...fadeIn}>
-                <button
-                  onClick={() => {
-                    setStep("phone");
-                    dispatch(clearError());
-                  }}
-                  className="text-sm text-gray-500 hover:text-gray-700 flex items-center mb-4"
-                >
-                  <ArrowLeft className="w-4 h-4 mr-1" />
-                  Change number
-                </button>
-
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                  Verify Your Number
-                </h1>
-                <p className="text-gray-500 mb-8">
-                  Code sent to{" "}
-                  <span className="font-medium text-gray-700">
-                    {formatPhoneNumber(phoneNumber)}
-                  </span>
-                </p>
-
-                <div className="space-y-6">
-                  <OtpInput
-                    value={otp}
-                    onChange={(newOtp) => {
-                      setOtp(newOtp);
-                      if (newOtp.every((d) => d !== "")) {
-                        setTimeout(() => handleVerifyOtp(), 100);
-                      }
-                    }}
-                    disabled={isLoading}
-                  />
-
-                  {error && (
-                    <p className="text-sm text-red-500 bg-red-50 p-3 rounded-lg text-center">
-                      {error}
-                    </p>
-                  )}
-
-                  <Button
-                    onClick={handleVerifyOtp}
-                    disabled={otp.join("").length !== 4 || isLoading}
-                    className="w-full bg-linear-to-r from-emerald-500 to-teal-500 text-white h-12 cursor-pointer"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : null}
-                    Verify & Continue
-                  </Button>
-
-                  <div className="text-center">
-                    <button
-                      onClick={handleResendOtp}
-                      disabled={countdown > 0}
-                      className="text-sm text-emerald-600 hover:text-emerald-700 disabled:text-gray-400"
-                    >
-                      {countdown > 0 ? `Resend in ${countdown}s` : "Resend OTP"}
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
+            {/* ─── CONTACT (Step 2) ─── */}
+            {currentStep === 2 && !createdBrand && (
+              <ContactStep
+                key="contact"
+                data={contact}
+                onChange={(data) => dispatch(updateContact(data))}
+                onNext={handleNext}
+                onPrev={handlePrev}
+              />
             )}
 
-            {step === "signup" && (
-              <motion.div key="signup" {...fadeIn}>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                  Set Up Your Brand
-                </h1>
-                <p className="text-gray-500 mb-8">
-                  Enter your brand name to create your account
-                </p>
-
-                <div className="space-y-4">
-                  <div>
-                    <Label
-                      htmlFor="brandName"
-                      className="text-sm font-medium text-gray-700 mb-1.5"
-                    >
-                      Brand Name
-                    </Label>
-                    <div className="relative mt-1.5">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input
-                        id="brandName"
-                        placeholder="Your brand name"
-                        value={brandName}
-                        onChange={(e) => setBrandName(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleSignup()}
-                        className="pl-10 h-12"
-                      />
-                    </div>
-                  </div>
-
-                  {error && (
-                    <p className="text-sm text-red-500 bg-red-50 p-3 rounded-lg">
-                      {error}
-                    </p>
-                  )}
-
-                  <Button
-                    onClick={handleSignup}
-                    disabled={isLoading}
-                    className="w-full bg-linear-to-r from-emerald-500 to-teal-500 text-white h-12 cursor-pointer"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : null}
-                    Create Brand Account
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
-              </motion.div>
+            {/* ─── ADDRESS (Step 3) ─── */}
+            {currentStep === 3 && !createdBrand && (
+              <AddressStep
+                key="address"
+                data={address}
+                onChange={(data) => dispatch(updateAddress(data))}
+                onSubmit={handleCompleteRegistration}
+                onPrev={handlePrev}
+                isSubmitting={isSubmitting}
+              />
             )}
 
-            {step === "success" && (
+            {/* ─── SUCCESS ─── */}
+            {createdBrand && (
               <motion.div key="success" {...fadeIn}>
                 <div className="text-center py-8">
                   <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -366,22 +179,34 @@ export default function BrandRegisterPage() {
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">
                     Brand Registered!
                   </h2>
-                  <p className="text-gray-500">Taking you to onboarding…</p>
+                  <p className="text-gray-500">
+                    Redirecting to login…
+                  </p>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Brand registration error */}
+          {brandError && !createdBrand && (
+            <p className="text-sm text-red-500 bg-red-50 p-3 rounded-lg mt-4">
+              {brandError}
+            </p>
+          )}
         </motion.div>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Already have an account?{" "}
-          <Link
-            to="/brand/login"
-            className="text-violet-600 hover:text-violet-700 font-medium"
-          >
-            Brand Login
-          </Link>
-        </p>
+        {/* Bottom link */}
+        {!createdBrand && (
+          <p className="text-center text-sm text-gray-500 mt-6">
+            Already have an account?{" "}
+            <Link
+              to="/brand/login"
+              className="text-violet-600 hover:text-violet-700 font-medium"
+            >
+              Brand Login
+            </Link>
+          </p>
+        )}
       </div>
     </div>
   );

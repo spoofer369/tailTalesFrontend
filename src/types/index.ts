@@ -39,4 +39,6 @@ export type AdminScreen =
 
 export type AuthStep = "phone" | "otp" | "signup" | "success";
 
+export type BrandRegistrationStep = 1 | 2 | 3;
+
 export type AuthUserType = "consumer" | "brand" | "admin";

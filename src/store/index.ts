@@ -3,11 +3,15 @@ import { useDispatch, useSelector } from "react-redux";
 import type { TypedUseSelectorHook } from "react-redux";
 import authReducer from "./slices/authSlice";
 import adminReducer from "./slices/adminSlice";
+import brandRegistrationReducer from "./slices/brandSlice";
+import brandDashboardReducer from "./slices/brandDashboardSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     admin: adminReducer,
+    brandRegistration: brandRegistrationReducer,
+    brandDashboard: brandDashboardReducer,
   },
 });
 
