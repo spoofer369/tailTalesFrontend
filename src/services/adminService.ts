@@ -11,25 +11,31 @@ export interface IDashboardStats {
 }
 
 export const fetchDashboardStatsApi = async (): Promise<IDashboardStats> => {
-  // Single brands call — get recent 5, also gives us count
-  const brandsRes = await api.get("/brands", {
-    params: { limit: 5, sortBy: "created_at", sortOrder: "desc" },
-  });
+  // Parallel calls for brands, customers, and products
+  const [brandsRes, customersRes, productsRes] = await Promise.all([
+    api.get("/brands", {
+      params: { limit: 5, sortBy: "created_at", sortOrder: "desc" },
+    }),
+    api.get("/users", { params: { role: "customer", limit: 1 } }).catch(() => ({ data: { count: 0 } })),
+    api.get("/products", { params: { limit: 1 } }).catch(() => ({ data: { count: 0 } })),
+  ]);
 
   const brands = brandsRes.data;
   const recentBrands: IBrand[] = brands.data || [];
   const totalBrands: number = brands.count || 0;
 
-  // Count pending from the full set if small, otherwise estimate
   const pendingKYC = recentBrands.filter(
     (b) => b.status === "pending_review",
   ).length;
 
+  const activeCustomers: number = customersRes.data?.count || 0;
+  const totalProducts: number = productsRes.data?.count || 0;
+
   return {
     totalBrands,
     pendingKYC,
-    activeCustomers: 0, // Will be populated when customers tab is visited
-    totalProducts: 0, // Will be populated when needed
+    activeCustomers,
+    totalProducts,
     recentBrands,
   };
 };
@@ -82,6 +88,13 @@ export const fetchCustomersApi = async (
 // ── Team/Admin Users ──
 export const fetchTeamUsersApi = async (): Promise<{ data: IUser[] }> => {
   const res = await api.get("/users/all");
+  return res.data;
+};
+
+export const createUserApi = async (
+  data: Record<string, unknown>,
+): Promise<IApiResponse<IUser>> => {
+  const res = await api.post("/users", data);
   return res.data;
 };
 

@@ -17,6 +17,7 @@ import {
   Package,
   FileText,
 } from "lucide-react";
+import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -35,6 +36,7 @@ type StatusFilter =
   | "pending_review"
   | "suspended"
   | "inactive";
+type KycFilter = "all" | "pending" | "approved" | "rejected";
 
 function getKycState(brand: IBrand): "approved" | "pending" | "rejected" {
   if (brand.verification_status) return "approved";
@@ -49,6 +51,7 @@ export default function AdminBrands() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [kycFilter, setKycFilter] = useState<KycFilter>("all");
   const [page, setPage] = useState(1);
   const [openMenu, setOpenMenu] = useState<number | null>(null);
   const [menuPos, setMenuPos] = useState<{ top: number; left: number }>({
@@ -82,8 +85,11 @@ export default function AdminBrands() {
     };
     if (debouncedSearch) params.search = debouncedSearch;
     if (statusFilter !== "all") params.status = statusFilter;
+    if (kycFilter === "approved") params.verification_status = true;
+    else if (kycFilter === "pending") params.status = "pending_review";
+    else if (kycFilter === "rejected") params.verification_status = false;
     dispatch(fetchBrands(params));
-  }, [dispatch, page, debouncedSearch, statusFilter]);
+  }, [dispatch, page, debouncedSearch, statusFilter, kycFilter]);
 
   // Close menu on outside click
   useEffect(() => {
@@ -129,12 +135,17 @@ export default function AdminBrands() {
   const handleApproveKyc = async () => {
     if (!approveDialog) return;
     setActionLoading(true);
-    await dispatch(
-      updateBrand({
-        id: approveDialog.id,
-        data: { verification_status: true, status: "active" } as never,
-      }),
-    );
+    try {
+      await dispatch(
+        updateBrand({
+          id: approveDialog.id,
+          data: { verification_status: true, status: "active" } as never,
+        }),
+      ).unwrap();
+      toast.success(`KYC approved for ${approveDialog.name}`);
+    } catch {
+      toast.error("Failed to approve KYC");
+    }
     setActionLoading(false);
     setApproveDialog(null);
   };
@@ -142,26 +153,41 @@ export default function AdminBrands() {
   const handleRejectKyc = async (_reason: string) => {
     if (!rejectDialog) return;
     setActionLoading(true);
-    await dispatch(
-      updateBrand({
-        id: rejectDialog.id,
-        data: { verification_status: false, status: "suspended" } as never,
-      }),
-    );
+    try {
+      await dispatch(
+        updateBrand({
+          id: rejectDialog.id,
+          data: { verification_status: false, status: "suspended" } as never,
+        }),
+      ).unwrap();
+      toast.success(`KYC rejected for ${rejectDialog.name}`);
+    } catch {
+      toast.error("Failed to reject KYC");
+    }
     setActionLoading(false);
     setRejectDialog(null);
   };
 
-  const handleToggleStatus = (brand: IBrand) => {
+  const handleToggleStatus = async (brand: IBrand) => {
     const newStatus = brand.status === "active" ? "suspended" : "active";
-    dispatch(
-      updateBrand({ id: brand.id, data: { status: newStatus } as never }),
-    );
+    try {
+      await dispatch(
+        updateBrand({ id: brand.id, data: { status: newStatus } as never }),
+      ).unwrap();
+      toast.success(newStatus === "active" ? `${brand.name} activated` : `${brand.name} deactivated`);
+    } catch {
+      toast.error("Failed to update brand status");
+    }
     setOpenMenu(null);
   };
 
-  const handleDelete = (id: number) => {
-    dispatch(deleteBrand(id));
+  const handleDelete = async (id: number) => {
+    try {
+      await dispatch(deleteBrand(id)).unwrap();
+      toast.success("Brand deleted successfully");
+    } catch {
+      toast.error("Failed to delete brand");
+    }
     setConfirmDelete(null);
     setOpenMenu(null);
   };
@@ -225,12 +251,7 @@ export default function AdminBrands() {
     }
   };
 
-  const filters: { label: string; value: StatusFilter }[] = [
-    { label: "All", value: "all" },
-    { label: "Active", value: "active" },
-    { label: "Pending", value: "pending_review" },
-    { label: "Suspended", value: "suspended" },
-  ];
+  // Filters are now handled by dropdown selects below
 
   const statCards = [
     {
@@ -302,24 +323,32 @@ export default function AdminBrands() {
             className="pl-10 h-10"
           />
         </div>
-        <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
-          {filters.map((f) => (
-            <button
-              key={f.value}
-              onClick={() => {
-                setStatusFilter(f.value);
-                setPage(1);
-              }}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer ${
-                statusFilter === f.value
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
+        <select
+          value={kycFilter}
+          onChange={(e) => {
+            setKycFilter(e.target.value as KycFilter);
+            setPage(1);
+          }}
+          className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-violet-500 cursor-pointer"
+        >
+          <option value="all">All KYC Status</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+        <select
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value as StatusFilter);
+            setPage(1);
+          }}
+          className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-violet-500 cursor-pointer"
+        >
+          <option value="all">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="suspended">Suspended</option>
+        </select>
       </div>
 
       {/* Table */}

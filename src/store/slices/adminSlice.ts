@@ -8,6 +8,7 @@ import {
   deleteBrandApi,
   fetchCustomersApi,
   fetchTeamUsersApi,
+  createUserApi,
   updateUserApi,
   deleteUserApi,
 } from "@/services/adminService";
@@ -192,6 +193,22 @@ export const updateUser = createAsyncThunk<
   }
 });
 
+export const createUser = createAsyncThunk<
+  IUser,
+  Record<string, unknown>,
+  { rejectValue: string }
+>("admin/createUser", async (data, { rejectWithValue }) => {
+  try {
+    const res = await createUserApi(data);
+    return res.data;
+  } catch (e: unknown) {
+    const err = e as { response?: { data?: { message?: string } } };
+    return rejectWithValue(
+      err.response?.data?.message || "Failed to create user",
+    );
+  }
+});
+
 export const deleteUser = createAsyncThunk<
   number,
   number,
@@ -318,6 +335,10 @@ const adminSlice = createSlice({
     // Delete user
     builder.addCase(deleteUser.fulfilled, (s, a) => {
       s.teamUsers = s.teamUsers.filter((u) => u.id !== a.payload);
+    });
+    // Create user
+    builder.addCase(createUser.fulfilled, (s, a) => {
+      s.teamUsers.push(a.payload);
     });
   },
 });
