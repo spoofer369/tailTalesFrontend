@@ -1,6 +1,6 @@
 import { createContext, useCallback, useState } from "react";
 import type { ReactNode } from "react";
-import Toast from "./Toast";
+import Toast from "@/components/ui/toast/Toast";
 
 // ── Types ──
 

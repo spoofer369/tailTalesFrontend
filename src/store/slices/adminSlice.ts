@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import type { IBrand, IUser } from "@/interfaces";
+import type { IBrand, IUser } from "@/interface";
 import {
   fetchDashboardStatsApi,
   fetchBrandsApi,

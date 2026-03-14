@@ -2,11 +2,11 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import AdminSidebar from "@/components/admin/AdminSidebar";
-import AdminOverview from "@/components/admin/AdminOverview";
-import AdminBrands from "@/components/admin/AdminBrands";
-import AdminCustomers from "@/components/admin/AdminCustomers";
-import AdminUsers from "@/components/admin/AdminUsers";
-import BrandKycReviewPage from "@/components/admin/BrandKycReviewPage";
+import AdminOverview from "@/components/admin/overview/AdminOverview";
+import AdminBrands from "@/components/admin/brands/AdminBrands";
+import AdminCustomers from "@/components/admin/customers/AdminCustomers";
+import AdminUsers from "@/components/admin/users/AdminUsers";
+import BrandKycReviewPage from "@/components/admin/brands/BrandKycReviewPage";
 
 const breadcrumbMap: Record<string, string> = {
   "/admin/dashboard": "Dashboard",

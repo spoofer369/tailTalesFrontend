@@ -4,7 +4,7 @@ import { ArrowRight, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { IBrandInfoForm } from "@/interfaces";
+import type { IBrandInfoForm } from "@/interface";
 
 interface BrandInfoStepProps {
   data: IBrandInfoForm;

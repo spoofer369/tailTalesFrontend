@@ -6,7 +6,7 @@ import type {
   IContactForm,
   IAddressForm,
   CreateBrandPayload,
-} from "@/interfaces";
+} from "@/interface";
 import { createBrandApi } from "@/services/brandService";
 
 // ── State ──
@@ -96,13 +96,22 @@ function buildPayload(state: BrandRegistrationState): CreateBrandPayload {
     brand_details: {
       headquarters: address.city || "",
     },
+    // Phone number for auto-creating brand_admin user
+    phone_number: formattedPhone || undefined,
   };
 }
 
 // ── Async Thunks ──
 
+// Response from createBrand API (includes optional user + session for auto-login)
+interface CreateBrandResponse {
+  brand: IBrand;
+  user?: { id: number; username: string; phone_number: string; role: string; brand_id: number };
+  session?: { sessionId: string; sessionToken: string; expiresAt: string };
+}
+
 export const createBrand = createAsyncThunk<
-  IBrand,
+  CreateBrandResponse,
   void,
   {
     rejectValue: string;
@@ -113,22 +122,31 @@ export const createBrand = createAsyncThunk<
   }
 >("brand/create", async (_, { rejectWithValue, getState }) => {
   try {
-    const { brandRegistration, auth } = getState();
+    const { brandRegistration } = getState();
     const payload = buildPayload(brandRegistration);
 
-    // Include user_id so backend can link brand to user
-    const payloadWithUser = {
-      ...payload,
-      user_id: auth.user?.id,
-    };
-
-    const response = await createBrandApi(
-      payloadWithUser as CreateBrandPayload & { user_id?: number },
-    );
+    const response = await createBrandApi(payload);
     if (!response.success) {
       return rejectWithValue(response.message);
     }
-    return response.data;
+
+    // If session data returned, store token for auto-login
+    const result = response as unknown as {
+      success: boolean;
+      data: IBrand;
+      user?: CreateBrandResponse["user"];
+      session?: CreateBrandResponse["session"];
+    };
+
+    if (result.session?.sessionToken) {
+      localStorage.setItem("token", result.session.sessionToken);
+    }
+
+    return {
+      brand: result.data,
+      user: result.user,
+      session: result.session,
+    };
   } catch (error: unknown) {
     const err = error as { response?: { data?: { message?: string } } };
     return rejectWithValue(
@@ -180,7 +198,7 @@ const brandRegistrationSlice = createSlice({
       })
       .addCase(createBrand.fulfilled, (state, action) => {
         state.isSubmitting = false;
-        state.createdBrand = action.payload;
+        state.createdBrand = action.payload.brand;
       })
       .addCase(createBrand.rejected, (state, action) => {
         state.isSubmitting = false;

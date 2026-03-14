@@ -1,5 +1,5 @@
 import { useRef, useCallback } from "react";
-import type { OtpInputProps } from "@/interfaces";
+import type { OtpInputProps } from "@/interface";
 
 export function OtpInput({
   length = 4,

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import type { IProduct, ICategory } from "@/interfaces";
+import type { IProduct, ICategory } from "@/interface";
 import {
   getProductsApi,
   createProductApi,
@@ -7,7 +7,7 @@ import {
   deleteProductApi,
 } from "@/services/productService";
 import { getCategoriesApi } from "@/services/categoryService";
-import type { CreateProductPayload, UpdateProductPayload } from "@/interfaces";
+import type { CreateProductPayload, UpdateProductPayload } from "@/interface";
 
 // ── State ──
 

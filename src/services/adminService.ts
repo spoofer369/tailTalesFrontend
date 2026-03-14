@@ -1,5 +1,5 @@
-import api from "./api";
-import type { IApiResponse, IBrand, IUser } from "@/interfaces";
+import api from "@/api/axios";
+import type { IApiResponse, IBrand, IUser } from "@/interface";
 
 // ── Dashboard Stats ──
 export interface IDashboardStats {

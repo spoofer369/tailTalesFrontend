@@ -1,11 +1,11 @@
-import api from "./api";
+import api from "@/api/axios";
 import type {
   IApiResponse,
   IOtpRequestResponse,
   IOtpVerifyResponse,
   IAuthData,
   IUser,
-} from "@/interfaces";
+} from "@/interface";
 
 // Request OTP for a phone number
 export const requestOtpApi = async (

@@ -3,7 +3,7 @@ import { ArrowLeft, CheckCircle, Loader2, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { IAddressForm } from "@/interfaces";
+import type { IAddressForm } from "@/interface";
 
 interface AddressStepProps {
   data: IAddressForm;

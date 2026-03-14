@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAppSelector } from "@/store";
-import type { IBrand } from "@/interfaces";
+import type { IBrand } from "@/interface";
 
 interface BrandDetailDrawerProps {
   open: boolean;

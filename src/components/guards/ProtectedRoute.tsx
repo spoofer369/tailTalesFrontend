@@ -10,7 +10,7 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({
   children,
   allowedRoles,
-  redirectTo = "/login",
+  redirectTo = "/",
 }: ProtectedRouteProps) {
   const { isAuthenticated, user, isLoading } = useAppSelector(
     (state) => state.auth,

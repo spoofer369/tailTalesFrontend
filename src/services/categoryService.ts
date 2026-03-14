@@ -1,5 +1,5 @@
-import api from "./api";
-import type { ICategory } from "@/interfaces";
+import api from "@/api/axios";
+import type { ICategory } from "@/interface";
 
 interface CategoryListResponse {
   success: boolean;

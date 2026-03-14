@@ -1,10 +1,10 @@
-import api from "./api";
+import api from "@/api/axios";
 import type {
   IApiResponse,
   IProduct,
   CreateProductPayload,
   UpdateProductPayload,
-} from "@/interfaces";
+} from "@/interface";
 
 // ── Product list (paginated) ──
 

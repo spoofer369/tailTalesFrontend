@@ -28,7 +28,7 @@ import {
 } from "@/store/slices/adminSlice";
 import KycApproveDialog from "./KycApproveDialog";
 import KycRejectDialog from "./KycRejectDialog";
-import type { IBrand } from "@/interfaces";
+import type { IBrand } from "@/interface";
 
 type StatusFilter =
   | "all"

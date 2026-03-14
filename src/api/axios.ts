@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { IApiResponse, IPaginatedResponse } from "@/interfaces";
+import type { IApiResponse, IPaginatedResponse } from "@/interface";
 
 const api = axios.create({
   baseURL: "/api",
@@ -27,7 +27,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
-      window.location.href = "/login";
+      window.location.href = "/";
     }
     return Promise.reject(error);
   },

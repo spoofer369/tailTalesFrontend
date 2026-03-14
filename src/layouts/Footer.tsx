@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Package, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
-import type { FooterProps } from "@/interfaces";
+import type { FooterProps } from "@/interface";
 
 export function Footer({ onAdminLogin }: FooterProps) {
   const [adminClickCount, setAdminClickCount] = useState(0);

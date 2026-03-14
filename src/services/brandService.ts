@@ -1,5 +1,5 @@
-import api from "./api";
-import type { IApiResponse, IBrand, CreateBrandPayload } from "@/interfaces";
+import api from "@/api/axios";
+import type { IApiResponse, IBrand, CreateBrandPayload } from "@/interface";
 
 // Create a new brand
 export const createBrandApi = async (

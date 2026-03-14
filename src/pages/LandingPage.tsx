@@ -11,8 +11,8 @@ import {
   MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { Navbar } from "@/layouts/Navbar";
+import { Footer } from "@/layouts/Footer";
 
 // Animation variants
 const fadeInUp = {

@@ -5,7 +5,7 @@ import type {
   IOtpRequestResponse,
   IOtpVerifyResponse,
   IAuthData,
-} from "@/interfaces";
+} from "@/interface";
 import {
   requestOtpApi,
   verifyOtpApi,

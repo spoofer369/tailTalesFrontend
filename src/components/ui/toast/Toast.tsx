@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { CheckCircle2, XCircle, Info, X } from "lucide-react";
-import type { ToastType } from "./ToastContext";
+import type { ToastType } from "@/context/ToastContext";
 
 interface ToastProps {
   type: ToastType;

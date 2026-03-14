@@ -8,6 +8,9 @@ import BrandOverview from "@/components/brand/BrandOverview";
 import ComingSoonPlaceholder from "@/components/brand/ComingSoonPlaceholder";
 import ProductList from "@/components/brand/products/ProductList";
 import ProductForm from "@/components/brand/products/ProductForm";
+import PostList from "@/components/brand/posts/PostList";
+import PostForm from "@/components/brand/posts/PostForm";
+import BrandSettings from "@/components/brand/settings/BrandSettings";
 
 const breadcrumbMap: Record<string, string> = {
   "/brand/dashboard": "Dashboard",
@@ -15,6 +18,7 @@ const breadcrumbMap: Record<string, string> = {
   "/brand/dashboard/products": "Products",
   "/brand/dashboard/products/new": "Add Product",
   "/brand/dashboard/posts": "Posts",
+  "/brand/dashboard/posts/new": "Add Post",
   "/brand/dashboard/leads": "Leads",
   "/brand/dashboard/sponsored": "Sponsored",
   "/brand/dashboard/community": "Community",
@@ -32,7 +36,8 @@ export default function BrandDashboardPage() {
   // For product edit routes like /products/123, show "Edit Product"
   const currentLabel =
     breadcrumbMap[currentPath] ||
-    (currentPath.match(/\/products\/\d+$/) ? "Edit Product" : "Dashboard");
+    (currentPath.match(/\/products\/\d+$/) ? "Edit Product" : null) ||
+    (currentPath.match(/\/posts\/\d+$/) ? "Edit Post" : "Dashboard");
 
   // Fetch brand data on mount
   useEffect(() => {
@@ -66,10 +71,9 @@ export default function BrandDashboardPage() {
             <Route path="products" element={<ProductList />} />
             <Route path="products/new" element={<ProductForm />} />
             <Route path="products/:id" element={<ProductForm />} />
-            <Route
-              path="posts"
-              element={<ComingSoonPlaceholder title="Posts management" />}
-            />
+            <Route path="posts" element={<PostList />} />
+            <Route path="posts/new" element={<PostForm />} />
+            <Route path="posts/:id" element={<PostForm />} />
             <Route
               path="leads"
               element={<ComingSoonPlaceholder title="Leads management" />}
@@ -86,10 +90,7 @@ export default function BrandDashboardPage() {
               path="billing"
               element={<ComingSoonPlaceholder title="Billing" />}
             />
-            <Route
-              path="brand"
-              element={<ComingSoonPlaceholder title="Brand settings" />}
-            />
+            <Route path="brand" element={<BrandSettings />} />
             <Route
               path="*"
               element={<Navigate to="/brand/dashboard" replace />}

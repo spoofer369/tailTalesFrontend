@@ -13,10 +13,11 @@ import {
   nextStep,
   prevStep,
 } from "@/store/slices/brandSlice";
-import StepIndicator from "@/components/brand/StepIndicator";
-import BrandInfoStep from "@/components/brand/BrandInfoStep";
-import ContactStep from "@/components/brand/ContactStep";
-import AddressStep from "@/components/brand/AddressStep";
+import { setSessionToken, checkAuth } from "@/store/slices/authSlice";
+import StepIndicator from "@/components/brand/registration/StepIndicator";
+import BrandInfoStep from "@/components/brand/registration/BrandInfoStep";
+import ContactStep from "@/components/brand/registration/ContactStep";
+import AddressStep from "@/components/brand/registration/AddressStep";
 
 const fadeIn = {
   initial: { opacity: 0, x: 20 },
@@ -44,10 +45,10 @@ export default function BrandRegisterPage() {
     };
   }, [dispatch]);
 
-  // Redirect after brand created
+  // Redirect after brand created — auto-login to dashboard
   useEffect(() => {
     if (createdBrand) {
-      setTimeout(() => navigate("/brand/login", { replace: true }), 2000);
+      setTimeout(() => navigate("/brand/dashboard", { replace: true }), 2000);
     }
   }, [createdBrand, navigate]);
 
@@ -61,9 +62,18 @@ export default function BrandRegisterPage() {
     dispatch(prevStep());
   };
 
-  const handleCompleteRegistration = () => {
+  const handleCompleteRegistration = async () => {
     dispatch(clearBrandError());
-    dispatch(createBrand());
+    const result = await dispatch(createBrand());
+    if (createBrand.fulfilled.match(result)) {
+      // Auto-login: store token + hydrate auth state
+      const { user, session } = result.payload;
+      if (user && session) {
+        dispatch(setSessionToken(session.sessionToken));
+        // Fetch full user from /auth/me to populate auth state
+        await dispatch(checkAuth());
+      }
+    }
   };
 
   // ── Computed ──

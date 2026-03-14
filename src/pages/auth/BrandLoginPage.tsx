@@ -20,7 +20,7 @@ import {
   clearError,
   resetAuthState,
 } from "@/store/slices/authSlice";
-import type { AuthStep } from "@/types";
+import type { AuthStep } from "@/interface";
 
 type LoginMethod = "phone" | "email";
 
@@ -44,13 +44,19 @@ export default function BrandLoginPage() {
   const [phoneError, setPhoneError] = useState("");
   const [roleError, setRoleError] = useState("");
 
+  // Guard: redirect if already logged in (runs once on mount)
   useEffect(() => {
     if (isAuthenticated && user) {
       if (["brand_admin", "brand_manager", "brand_staff"].includes(user.role)) {
         navigate("/brand/dashboard", { replace: true });
+      } else if (user.role === "super_admin") {
+        navigate("/admin/dashboard", { replace: true });
+      } else {
+        navigate("/", { replace: true });
       }
     }
-  }, [isAuthenticated, user, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -115,6 +121,9 @@ export default function BrandLoginPage() {
         setStep("success");
         setTimeout(() => navigate("/brand/dashboard", { replace: true }), 1500);
       } else {
+        // Wrong role — clear token without calling logout API
+        localStorage.removeItem("token");
+        dispatch(resetAuthState());
         setRoleError(
           "This account is not registered as a brand. Please use consumer login.",
         );

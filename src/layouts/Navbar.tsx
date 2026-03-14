@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { motion, AnimatePresence } from "framer-motion";
-import type { NavbarProps } from "@/interfaces";
+import type { NavbarProps } from "@/interface";
 
 export function Navbar({ onBrandLogin }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -39,7 +39,7 @@ export function Navbar({ onBrandLogin }: NavbarProps) {
   };
 
   const handleExplore = () => {
-    navigate("/explore");
+    navigate("/");
   };
 
   return (

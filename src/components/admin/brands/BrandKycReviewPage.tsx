@@ -15,7 +15,7 @@ import { useAppDispatch, useAppSelector } from "@/store";
 import { fetchBrandById, updateBrand } from "@/store/slices/adminSlice";
 import KycApproveDialog from "./KycApproveDialog";
 import KycRejectDialog from "./KycRejectDialog";
-import type { IBrand } from "@/interfaces";
+import type { IBrand } from "@/interface";
 
 // Mock document types — since backend doesn't store KYC docs yet
 const DOC_TYPES = [
