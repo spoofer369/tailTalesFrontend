@@ -17,7 +17,7 @@ import {
   Package,
   FileText,
 } from "lucide-react";
-import { toast } from "react-toastify";
+import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -48,6 +48,7 @@ export default function AdminBrands() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { brands, brandsCount, brandsLoading } = useAppSelector((s) => s.admin);
+  const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -142,9 +143,9 @@ export default function AdminBrands() {
           data: { verification_status: true, status: "active" } as never,
         }),
       ).unwrap();
-      toast.success(`KYC approved for ${approveDialog.name}`);
+      showToast({ type: "success", title: `KYC approved for ${approveDialog.name}` });
     } catch {
-      toast.error("Failed to approve KYC");
+      showToast({ type: "error", title: "Failed to approve KYC" });
     }
     setActionLoading(false);
     setApproveDialog(null);
@@ -160,9 +161,9 @@ export default function AdminBrands() {
           data: { verification_status: false, status: "suspended" } as never,
         }),
       ).unwrap();
-      toast.success(`KYC rejected for ${rejectDialog.name}`);
+      showToast({ type: "success", title: `KYC rejected for ${rejectDialog.name}` });
     } catch {
-      toast.error("Failed to reject KYC");
+      showToast({ type: "error", title: "Failed to reject KYC" });
     }
     setActionLoading(false);
     setRejectDialog(null);
@@ -174,9 +175,9 @@ export default function AdminBrands() {
       await dispatch(
         updateBrand({ id: brand.id, data: { status: newStatus } as never }),
       ).unwrap();
-      toast.success(newStatus === "active" ? `${brand.name} activated` : `${brand.name} deactivated`);
+      showToast({ type: "success", title: newStatus === "active" ? `${brand.name} activated` : `${brand.name} deactivated` });
     } catch {
-      toast.error("Failed to update brand status");
+      showToast({ type: "error", title: "Failed to update brand status" });
     }
     setOpenMenu(null);
   };
@@ -184,9 +185,9 @@ export default function AdminBrands() {
   const handleDelete = async (id: number) => {
     try {
       await dispatch(deleteBrand(id)).unwrap();
-      toast.success("Brand deleted successfully");
+      showToast({ type: "success", title: "Brand deleted successfully" });
     } catch {
-      toast.error("Failed to delete brand");
+      showToast({ type: "error", title: "Failed to delete brand" });
     }
     setConfirmDelete(null);
     setOpenMenu(null);

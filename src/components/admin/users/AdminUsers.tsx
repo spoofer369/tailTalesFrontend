@@ -7,7 +7,7 @@ import {
   X,
   MoreVertical,
 } from "lucide-react";
-import { toast } from "react-toastify";
+import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
@@ -54,6 +54,7 @@ function timeAgo(dateStr: string): string {
 export default function AdminUsers() {
   const dispatch = useAppDispatch();
   const { teamUsers, teamLoading } = useAppSelector((s) => s.admin);
+  const { showToast } = useToast();
 
   const [showAddUser, setShowAddUser] = useState(false);
   const [newUser, setNewUser] = useState({
@@ -114,9 +115,9 @@ export default function AdminUsers() {
   const handleToggleStatus = async (id: number, currentStatus: boolean) => {
     try {
       await dispatch(updateUser({ id, data: { is_active: !currentStatus } })).unwrap();
-      toast.success(currentStatus ? "User deactivated" : "User activated");
+      showToast({ type: "success", title: currentStatus ? "User deactivated" : "User activated" });
     } catch {
-      toast.error("Failed to update user status");
+      showToast({ type: "error", title: "Failed to update user status" });
     }
     setOpenMenu(null);
   };
@@ -124,9 +125,9 @@ export default function AdminUsers() {
   const handleDelete = async (id: number) => {
     try {
       await dispatch(deleteUser(id)).unwrap();
-      toast.success("User removed successfully");
+      showToast({ type: "success", title: "User removed successfully" });
     } catch {
-      toast.error("Failed to remove user");
+      showToast({ type: "error", title: "Failed to remove user" });
     }
     setOpenMenu(null);
   };
@@ -149,14 +150,14 @@ export default function AdminUsers() {
           last_name: lastName,
         }),
       ).unwrap();
-      toast.success(`Admin user added successfully!`);
+      showToast({ type: "success", title: "Admin user added successfully!" });
       setShowAddUser(false);
       setNewUser({ username: "", email: "", phone_number: "", role: "brand_admin" });
       // Re-fetch to get fresh data with profile
       dispatch(fetchTeamUsers());
     } catch (err) {
       const error = err as { message?: string };
-      toast.error(error?.message || "Failed to add user");
+      showToast({ type: "error", title: error?.message || "Failed to add user" });
     } finally {
       setAddLoading(false);
     }

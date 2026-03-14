@@ -13,7 +13,7 @@ import {
   nextStep,
   prevStep,
 } from "@/store/slices/brandSlice";
-import { setSessionToken, checkAuth } from "@/store/slices/authSlice";
+
 import StepIndicator from "@/components/brand/registration/StepIndicator";
 import BrandInfoStep from "@/components/brand/registration/BrandInfoStep";
 import ContactStep from "@/components/brand/registration/ContactStep";
@@ -45,10 +45,10 @@ export default function BrandRegisterPage() {
     };
   }, [dispatch]);
 
-  // Redirect after brand created — auto-login to dashboard
+  // Redirect to login page after successful registration
   useEffect(() => {
     if (createdBrand) {
-      setTimeout(() => navigate("/brand/dashboard", { replace: true }), 2000);
+      setTimeout(() => navigate("/brand/login", { replace: true }), 2000);
     }
   }, [createdBrand, navigate]);
 
@@ -64,16 +64,7 @@ export default function BrandRegisterPage() {
 
   const handleCompleteRegistration = async () => {
     dispatch(clearBrandError());
-    const result = await dispatch(createBrand());
-    if (createBrand.fulfilled.match(result)) {
-      // Auto-login: store token + hydrate auth state
-      const { user, session } = result.payload;
-      if (user && session) {
-        dispatch(setSessionToken(session.sessionToken));
-        // Fetch full user from /auth/me to populate auth state
-        await dispatch(checkAuth());
-      }
-    }
+    await dispatch(createBrand());
   };
 
   // ── Computed ──
@@ -83,7 +74,7 @@ export default function BrandRegisterPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50/60 via-white to-purple-50/30 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-violet-50/60 via-white to-purple-50/30 flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
         {/* Top navigation */}
         {currentStep === 1 && !createdBrand && (
@@ -114,7 +105,7 @@ export default function BrandRegisterPage() {
           {!createdBrand && (
             <>
               <div className="text-center mb-6">
-                <div className="w-14 h-14 bg-gradient-to-br from-violet-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-violet-200">
+                <div className="w-14 h-14 bg-linear-to-br from-violet-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-violet-200">
                   <Building className="w-7 h-7 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold text-violet-700 mb-1">

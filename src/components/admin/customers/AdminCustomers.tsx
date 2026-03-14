@@ -10,7 +10,7 @@ import {
   TrendingUp,
   MoreVertical,
 } from "lucide-react";
-import { toast } from "react-toastify";
+import { useToast } from "@/hooks/useToast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -56,6 +56,7 @@ export default function AdminCustomers() {
   const { customers, customersTotal, customersLoading } = useAppSelector(
     (s) => s.admin,
   );
+  const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [segmentFilter, setSegmentFilter] = useState<SegmentFilter>("all");
@@ -116,9 +117,9 @@ export default function AdminCustomers() {
   const handleToggleStatus = async (id: number, currentStatus: boolean) => {
     try {
       await dispatch(updateUser({ id, data: { is_active: !currentStatus } })).unwrap();
-      toast.success(currentStatus ? "Customer blocked" : "Customer unblocked");
+      showToast({ type: "success", title: currentStatus ? "Customer blocked" : "Customer unblocked" });
     } catch {
-      toast.error("Failed to update customer status");
+      showToast({ type: "error", title: "Failed to update customer status" });
     }
     setOpenMenu(null);
   };

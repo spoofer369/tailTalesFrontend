@@ -138,9 +138,7 @@ export const createBrand = createAsyncThunk<
       session?: CreateBrandResponse["session"];
     };
 
-    if (result.session?.sessionToken) {
-      localStorage.setItem("token", result.session.sessionToken);
-    }
+    // Session data is returned but NOT stored — brand must log in via login page
 
     return {
       brand: result.data,
@@ -168,11 +166,13 @@ const brandRegistrationSlice = createSlice({
       if (state.currentStep < 3) {
         state.currentStep = (state.currentStep + 1) as 1 | 2 | 3;
       }
+      state.error = null;
     },
     prevStep(state) {
       if (state.currentStep > 1) {
         state.currentStep = (state.currentStep - 1) as 1 | 2 | 3;
       }
+      state.error = null;
     },
     updateBrandInfo(state, action: PayloadAction<Partial<IBrandInfoForm>>) {
       state.brandInfo = { ...state.brandInfo, ...action.payload };
