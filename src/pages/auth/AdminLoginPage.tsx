@@ -236,17 +236,6 @@ export default function AdminLoginPage() {
                   </p>
                 </div>
               )}
-              <div className="text-center mt-5">
-                <p className="text-sm text-gray-400">
-                  Don't have an account?{" "}
-                  <Link
-                    to="/admin/signup"
-                    className="text-violet-400 hover:text-violet-300 font-medium"
-                  >
-                    Create Account
-                  </Link>
-                </p>
-              </div>
               {loginMethod === "phone" && (
                 <div className="flex items-center gap-2 mt-5 p-3 bg-violet-950/30 rounded-lg border border-violet-800/30">
                   <Info className="w-4 h-4 text-violet-400 shrink-0" />

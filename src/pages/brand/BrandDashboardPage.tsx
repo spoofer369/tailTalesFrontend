@@ -41,7 +41,7 @@ export default function BrandDashboardPage() {
 
   // Fetch brand data on mount
   useEffect(() => {
-    if (user?.brand_id && !brand) {
+    if (user?.brand_id && (!brand || brand.id !== user.brand_id)) {
       dispatch(fetchBrand(user.brand_id));
     }
   }, [dispatch, user?.brand_id, brand]);

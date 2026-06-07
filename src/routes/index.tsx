@@ -4,7 +4,6 @@ import LandingPage from "@/pages/LandingPage";
 import BrandLoginPage from "@/pages/auth/BrandLoginPage";
 import BrandRegisterPage from "@/pages/auth/BrandRegisterPage";
 import AdminLoginPage from "@/pages/auth/AdminLoginPage";
-import AdminSignupPage from "@/pages/auth/AdminSignupPage";
 import AdminDashboardPage from "@/pages/admin/AdminDashboardPage";
 import BrandDashboardPage from "@/pages/brand/BrandDashboardPage";
 import { ProtectedRoute } from "@/components/guards/ProtectedRoute";
@@ -20,8 +19,6 @@ export default function AppRoutes() {
       <Route path={ROUTES.BRAND_LOGIN} element={<BrandLoginPage />} />
       <Route path={ROUTES.BRAND_REGISTER} element={<BrandRegisterPage />} />
       <Route path={ROUTES.ADMIN_LOGIN} element={<AdminLoginPage />} />
-      <Route path={ROUTES.ADMIN_SIGNUP} element={<AdminSignupPage />} />
-
       {/* Brand Dashboard (Protected) */}
       <Route
         path={`${ROUTES.BRAND_DASHBOARD}/*`}

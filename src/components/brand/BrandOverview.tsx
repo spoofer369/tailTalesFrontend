@@ -29,7 +29,7 @@ export default function BrandOverview() {
   const { user } = useAppSelector((s) => s.auth);
 
   useEffect(() => {
-    if (user?.brand_id && !brand) {
+    if (user?.brand_id && (!brand || brand.id !== user.brand_id)) {
       dispatch(fetchBrand(user.brand_id));
     }
   }, [dispatch, user?.brand_id, brand]);

@@ -17,6 +17,5 @@ export const ROUTES = {
   BRAND_SETTINGS: "/brand/dashboard/settings",
 
   // Admin Dashboard
-  ADMIN_SIGNUP: "/admin/signup",
   ADMIN_DASHBOARD: "/admin/dashboard",
 } as const;
